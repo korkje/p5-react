@@ -1,6 +1,6 @@
 {
     "name": "@korkje/p5-react",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Simple p5.js wrapper for React",
     "license": "MIT",
     "repository": {
