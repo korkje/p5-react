@@ -10,7 +10,7 @@
     "scripts": {
         "dev": "vite",
         "build": "tsc && vite build",
-        "prepublish": "npm run build"
+        "prepublishOnly": "npm run build"
     },
     "devDependencies": {
         "@types/node": "^18.0.0",
