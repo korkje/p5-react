@@ -10,7 +10,7 @@ npm add p5 @korkje/p5-react
 npm add -D @types/p5
 ```
 
-```tsx
+```jsx
 import P5React, { Sketch } from "@korkje/p5-react";
 
 const sketch: Sketch = (p5, parent) => {
