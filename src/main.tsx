@@ -2,14 +2,11 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import P5React, { Sketch } from "./lib";
 
-const sketch: Sketch = (p5) => {
+const sketch: Sketch = (p5, parent) => {
     let value = 0;
+    const handle = setInterval(() => ++value, 1000);
 
-    const handle = setInterval(() => {
-        ++value;
-    }, 1000);
-
-    p5.setup = (parent) => {
+    p5.setup = () => {
         p5.createCanvas(parent.clientWidth, parent.clientHeight);
         p5.background(255);
     };

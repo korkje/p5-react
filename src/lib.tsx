@@ -1,9 +1,7 @@
 import React, { memo, useEffect, useRef } from "react";
-import _P5 from "p5";
+import P5 from "p5";
 
-export type Setup = (parent: HTMLElement) => void;
-export type P5 = Omit<_P5, "setup"> & { setup: Setup };
-export type Sketch = (p5: P5) => unknown;
+export type Sketch = (p5: P5, parent: HTMLElement) => unknown;
 
 export type Props = { sketch: Sketch } &
     React.DetailedHTMLProps<
@@ -16,13 +14,11 @@ export const P5React: React.FC<Props> = memo(({ sketch, ...rest }) => {
     const cleanupRef = useRef<Function>();
 
     useEffect(() => {
-        const wrapper = new _P5((p5: _P5) => {
-            const result = sketch(p5);
+        const wrapper = new P5((p5: P5) => {
+            const result = sketch(p5, parentRef.current!);
             if (typeof result === "function") {
                 cleanupRef.current = result;
             }
-            const setup = p5.setup as Setup;
-            p5.setup = () => setup(parentRef.current!);
         }, parentRef.current!);
 
         return () => {

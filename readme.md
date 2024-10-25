@@ -13,14 +13,11 @@ npm add -D @types/p5
 ```jsx
 import P5Wrapper, { Sketch } from "@korkje/p5-react";
 
-const sketch: Sketch = (p5) => {
+const sketch: Sketch = (p5, parent) => {
     let value = 0;
+    const handle = setInterval(() => ++value, 1000);
 
-    const handle = setInterval(() => {
-        ++value;
-    }, 1000);
-
-    p5.setup = (parent) => {
+    p5.setup = () => {
         p5.createCanvas(parent.clientWidth, parent.clientHeight);
         p5.background(255);
     };
