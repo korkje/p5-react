@@ -5,7 +5,7 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/korkje/p5-react.git"
+        "url": "git+https://github.com/korkje/p5-react.git"
     },
     "scripts": {
         "dev": "vite",
