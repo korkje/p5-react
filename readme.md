@@ -3,7 +3,7 @@
 [![npm](https://img.shields.io/npm/v/@korkje/p5-react)](https://www.npmjs.com/package/@korkje/p5-react)
 [![NPM](https://img.shields.io/github/license/korkje/p5-react)](license.md)
 
-Simple [p.js](https://p5js.org) wrapper for React.
+Simple [p5.js](https://p5js.org) wrapper for React.
 
 ```bash
 npm add @korkje/p5-react
