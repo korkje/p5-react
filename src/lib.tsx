@@ -1,7 +1,12 @@
 import React, { useEffect, useRef } from "react";
 import P5 from "p5";
 
-export type Extras<T> = { parent: HTMLDivElement, update: (props: {} extends T ? undefined : T) => void };
+export type Extras<T> = {
+    parent: HTMLDivElement;
+    props: {} extends T ? undefined : T;
+    update: (props: Extras<T>["props"]) => void;
+};
+
 export type Sketch<T = {}> = (p: P5 & Extras<T>, parent: HTMLDivElement) => unknown;
 
 export type Props<T> =
@@ -16,14 +21,26 @@ export const P5React = <T extends {}>({ sketch, props, ...rest}: Props<T>) => {
     const updateRef = useRef<(props: any) => void>();
     const cleanupRef = useRef<Function>();
 
+    const [PROPS, DEPS] = props === undefined
+        ? [undefined, []] : Array.isArray(props)
+            ? props : [props, Object.values(props)];
+
+    useEffect(() => {
+        updateRef.current?.(PROPS);
+    }, DEPS);
+
     useEffect(() => {
         const wrapper = new P5((p: P5 & Extras<T>) => {
             p.parent = parentRef.current!;
+            p.props = PROPS as Extras<T>["props"];
             const result = sketch(p, parentRef.current!);
             if (typeof result === "function") {
                 cleanupRef.current = result;
             }
-            updateRef.current = p.update;
+            updateRef.current = props => {
+                p.update?.(props);
+                p.props = props as Extras<T>["props"];
+            };
         }, parentRef.current!);
 
         return () => {
@@ -31,14 +48,6 @@ export const P5React = <T extends {}>({ sketch, props, ...rest}: Props<T>) => {
             cleanupRef.current?.();
         };
     }, [sketch]);
-
-    const [p, d] = props === undefined
-        ? [undefined, []] : Array.isArray(props)
-            ? props : [props, Object.values(props)];
-
-    useEffect(() => {
-        updateRef.current?.(p);
-    }, d);
 
     return <div ref={parentRef} {...rest} />;
 };

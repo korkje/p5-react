@@ -75,22 +75,20 @@ const sketch: Sketch = p => {
 
 ### Props
 
-`P5React` supports passing props into the sketch. For TypeScript users, props are defined as a type argument to the `Sketch` type, which will allow props to be inferred by both `P5React` and the `update` function you'll attach to the p5.js instance.
+`P5React` supports passing props into the sketch. For TypeScript users, props are defined as a type argument to the `Sketch` type, which will allow props to be inferred by both `P5React`, the `props` object, and the `update` function (see below).
 
 ```jsx
 
-const sketch: Sketch<{ count: number }> = (p, parent) => {
-    let count: number;
-
-    p.update = props => {
-        count = props.count;
-    };
-
-    p.setup = () => p.createCanvas(100, 100);
+const sketch: Sketch<{
+    count: number,
+    w: number,
+    h: number,
+}> = (p, parent) => {
+    p.setup = () => p.createCanvas(p.props.w, p.props.h);
 
     p.draw = () => {
         p.background(0);
-        p.text(count, 50, 50);
+        p.text(p.props.count, 50, 50);
     };
 };
 
@@ -98,11 +96,36 @@ export default () => {
     const [count, setCount] = useState(0);
 
     return <>
-        <P5React sketch={sketch} props={{ count }} />
+        <P5React sketch={sketch} props={{ count, w: 100, h: 100 }} />
         <button onClick={() => setCount(ps => ps + 1)}>
             Increment
         </button>
     </>;
+};
+```
+
+You may also define an `update` function that is called with the new props right before the `props` object changes.
+
+```jsx
+const sketch: Sketch<{
+    count: number,
+    w: number,
+    h: number,
+}> = (p, parent) => {
+    let count: number;
+
+    p.setup = () => p.createCanvas(p.props.w, p.props.h);
+
+    p.draw = () => {
+        p.background(0);
+        p.text(count, 50, 50);
+    };
+
+    p.update = ({ w, h }) => {
+        if (w !== p.props.w || h !== p.props.h) {
+            p.resizeCanvas(w, h);
+        }
+    };
 };
 ```
 
