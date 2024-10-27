@@ -112,13 +112,11 @@ const sketch: Sketch<{
     w: number,
     h: number,
 }> = (p, parent) => {
-    let count: number;
-
     p.setup = () => p.createCanvas(p.props.w, p.props.h);
 
     p.draw = () => {
         p.background(0);
-        p.text(count, 50, 50);
+        p.text(p.props.count, 50, 50);
     };
 
     p.update = ({ w, h }) => {
