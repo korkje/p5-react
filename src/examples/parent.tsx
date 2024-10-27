@@ -1,4 +1,3 @@
-import React from "react";
 import P5React, { Sketch } from "../lib";
 
 const sketch: Sketch = (p, parent) => {

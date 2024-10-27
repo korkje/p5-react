@@ -12,7 +12,7 @@
         "noUnusedParameters": true,
         "skipLibCheck": true,
         "baseUrl": "./src",
-        "jsx": "react"
+        "jsx": "react-jsx"
     },
     "include": ["src"]
 }

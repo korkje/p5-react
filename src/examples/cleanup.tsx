@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import P5React, { Sketch } from "../lib";
 
 const sketch: Sketch = p => {
