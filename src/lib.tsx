@@ -44,8 +44,10 @@ export const P5React = <T extends {}>({ sketch, props, ...rest}: Props<T>) => {
         }, parentRef.current!);
 
         return () => {
-            wrapper.remove()
+            wrapper.remove();
             cleanupRef.current?.();
+            cleanupRef.current = undefined;
+            updateRef.current = undefined;
         };
     }, [sketch]);
 

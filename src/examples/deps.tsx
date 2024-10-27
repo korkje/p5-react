@@ -2,14 +2,6 @@ import React, { useEffect, useState } from "react";
 import P5React, { Sketch } from "../lib";
 
 const sketch: Sketch<{ a: number, b: number }> = p => {
-    let a: number;
-    let b: number;
-
-    p.update = props => {
-        a = props.a;
-        b = props.b;
-    };
-
     p.setup = () => p.createCanvas(300, 100);
 
     p.draw = () => {
@@ -17,8 +9,8 @@ const sketch: Sketch<{ a: number, b: number }> = p => {
         p.textSize(32);
         p.textAlign(p.LEFT, p.TOP);
         p.text("Deps", 0, 0);
-        p.text(a, 0, 50);
-        p.text(b, 50, 50);
+        p.text(p.props.a, 0, 50);
+        p.text(p.props.b, 50, 50);
     };
 };
 
