@@ -26,14 +26,14 @@ export const P5React = <T extends {}>({ sketch, props, ...rest}: Props<T>) => {
     const effectsRef = useRef<Parameters<Extras<T>["effect"]>[]>([]);
     const initialRef = useRef<boolean>(true);
     const cleanupRef = useRef<Function>();
-    const prevPropsRef = useRef<T>();
+    const propsRef = useRef<T>();
 
     const [PROPS, DEPS] = props === undefined
         ? [undefined, []] : Array.isArray(props)
             ? props : [props, Object.values(props)];
 
-    const prevProps = prevPropsRef.current;
-    prevPropsRef.current = PROPS;
+    const prevProps = propsRef.current;
+    propsRef.current = PROPS;
 
     useEffect(() => {
         const wrapper = new P5((p: P5 & Extras<T>) => {
@@ -59,7 +59,7 @@ export const P5React = <T extends {}>({ sketch, props, ...rest}: Props<T>) => {
             effectsRef.current = [];
             initialRef.current = true;
             cleanupRef.current = undefined;
-            prevPropsRef.current = undefined;
+            propsRef.current = undefined;
         };
     }, [sketch]);
 
