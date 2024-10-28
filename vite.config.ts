@@ -7,18 +7,11 @@ export default defineConfig({
     build: {
         lib: {
             entry: resolve(__dirname, "src/lib.tsx"),
-            name: "P5React",
             fileName: "lib",
-            formats: ["es", "umd"],
+            formats: ["es"],
         },
         rollupOptions: {
             external: ["react", "react-dom", "p5"],
-            output: {
-                globals: {
-                    react: "React",
-                    p5: "p5",
-                },
-            },
         },
     },
     plugins: [react(), dts({ include: "src/lib.tsx" })],
