@@ -21,8 +21,6 @@ const sketch: Sketch<{
         p.text("Props", 0, 0);
         p.text(p.props.value, 0, 50);
     };
-
-
 };
 
 const Props = () => {

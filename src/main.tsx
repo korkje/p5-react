@@ -6,6 +6,7 @@ import Deps from "./examples/deps";
 import Parent from "./examples/parent";
 import Props from "./examples/props";
 import Simple from "./examples/simple";
+import Effect from "./examples/effect";
 
 const App: React.FC = () => (
     <div style={{
@@ -18,6 +19,7 @@ const App: React.FC = () => (
         <Cleanup />
         <Props />
         <Deps />
+        <Effect />
     </div>
 );
 
