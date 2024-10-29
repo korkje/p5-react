@@ -1,82 +1,107 @@
 import React, { useEffect, useRef } from "react";
 import P5 from "p5";
 
+type SketchProps<T> = {} extends T ? undefined : T;
+type Object = Record<string, unknown>;
+
 export type Extras<T> = {
     parent: HTMLDivElement;
-    props: {} extends T ? undefined : T;
-    update: (props: Extras<T>["props"]) => void;
+    props: SketchProps<T>;
     effect: (
-        callback: (props: Extras<T>["props"], initial: boolean) => void,
-        deps?: (keyof T)[],
+        callback: (props: SketchProps<T>, initial: boolean) => void,
+        deps?: (keyof T)[] | ((props: T) => unknown[]),
     ) => void;
 };
 
-export type Sketch<T = {}> = (p: P5 & Extras<T>, parent: HTMLDivElement) => unknown;
+export type Sketch<T extends Object = {}> = (p: P5 & Extras<T>, parent: HTMLDivElement) => unknown;
 
-export type Props<T> =
-    ({ sketch: Sketch<T> } & ({} extends T ? { props?: never }: { props: T | [T, unknown[]] }))
-    & React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLDivElement>,
-        HTMLDivElement
-    >;
+export type P5ReactProps<T extends Object> =
+    { sketch: Sketch<T>; deps?: unknown[] }
+    & ({} extends T ? { props?: undefined } : { props: T })
+    & React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
 
-export const P5React = <T extends {}>({ sketch, props, ...rest}: Props<T>) => {
+export const P5React = <T extends Object>({ sketch, props, deps, ...rest}: P5ReactProps<T>) => {
     const parentRef = useRef<HTMLDivElement>(null);
-    const updateRef = useRef<Extras<T>["update"]>();
-    const effectsRef = useRef<Parameters<Extras<T>["effect"]>[]>([]);
-    const initialRef = useRef<boolean>(true);
+    const updateRef = useRef<(props: SketchProps<T>) => void>();
+    const effectsRef = useRef<Parameters<Extras<T>["effect"]>[]>();
     const cleanupRef = useRef<Function>();
-    const propsRef = useRef<T>();
+    const prevRef = useRef<[SketchProps<T>, unknown[]]>();
 
-    const [PROPS, DEPS] = props === undefined
-        ? [undefined, []] : Array.isArray(props)
-            ? props : [props, Object.values(props)];
-
-    const prevProps = propsRef.current;
-    propsRef.current = PROPS;
+    const PROPS = props as SketchProps<T>;
+    const DEPS = deps ?? (PROPS ? Object.values(PROPS) : []);
 
     useEffect(() => {
         const wrapper = new P5((p: P5 & Extras<T>) => {
             p.parent = parentRef.current!;
-            p.props = PROPS as Extras<T>["props"];
-            p.effect = (callback, deps) => {
-                effectsRef.current.push([callback, deps]);
-            };
+            p.props = PROPS;
+            p.effect = (callback, deps) => effects.push([callback, deps]);
+            const effects: Parameters<Extras<T>["effect"]>[] = [];
             const result = sketch(p, parentRef.current!);
-            if (typeof result === "function") {
-                cleanupRef.current = result;
-            }
-            updateRef.current = props => {
-                p.update?.(props);
-                p.props = props as Extras<T>["props"];
-            };
+            if (effects.length) effectsRef.current = effects;
+            if (typeof result === "function") cleanupRef.current = result;
+            updateRef.current = props => p.props = props;
         }, parentRef.current!);
 
         return () => {
-            wrapper.remove();
-            cleanupRef.current?.();
+            try { wrapper.remove(); }
+            catch (e) { console.error("Failed to remove P5 instance", e); }
+            try { cleanupRef.current?.(); }
+            catch (e) { console.error("Cleanup function threw", e); }
+
             updateRef.current = undefined;
-            effectsRef.current = [];
-            initialRef.current = true;
+            effectsRef.current = undefined;
             cleanupRef.current = undefined;
-            propsRef.current = undefined;
+            prevRef.current = undefined;
         };
     }, [sketch]);
 
+    if (prevRef.current) {
+        const [_ , prevDeps] = prevRef.current;
+        if (DEPS.length !== prevDeps.length) {
+            console.error("The 'props' object changed shape");
+        }
+    }
+
     useEffect(() => {
-        for (const [callback, deps] of effectsRef.current) {
-            if (deps?.some(dep => PROPS![dep] !== prevProps?.[dep]) ?? true) {
-                callback(PROPS as Extras<T>["props"], initialRef.current);
-            }
+        const prev = prevRef.current;
+        prevRef.current = [PROPS, DEPS];
+
+        if (!prev) {
+            effectsRef.current?.forEach(([callback]) => {
+                try { callback(PROPS, true); }
+                catch (e) { console.error("Effect callback threw", e); }
+            });
+            return;
         }
 
-        if (initialRef.current) {
-            initialRef.current = false;
+        const [prevProps] = prev;
+        if (!PROPS || !prevProps || !effectsRef.current) {
+            return;
         }
-        else {
-            updateRef.current?.(PROPS as Extras<T>["props"]);
-        }
+
+        effectsRef.current?.forEach(([callback, deps]) => {
+            let run = false;
+            try {
+                if (typeof deps === "function") {
+                    const _old = deps(prevProps);
+                    const _new = deps(PROPS);
+                    run = _old.some((v, i) => v !== _new[i]);
+                }
+                else {
+                    run = deps?.some(dep => prevProps![dep] !== PROPS![dep]) ?? true;
+                }
+            }
+            catch (e) { console.error("Dependency check threw", e); }
+
+            if (run) {
+                try { callback(PROPS, false); }
+                catch (e) { console.error("Effect callback threw", e); }
+            }
+        });
+
+        updateRef.current?.(PROPS);
     }, [sketch, ...DEPS]);
+
 
     return <div ref={parentRef} {...rest} />;
 };

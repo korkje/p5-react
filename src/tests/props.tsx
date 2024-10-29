@@ -8,47 +8,54 @@ const sketch: Sketch<{
 }> = p => {
     p.setup = () => p.createCanvas(p.props.w, p.props.h);
 
-    p.update = ({ w, h }) => {
-        if (w !== p.props.w || h !== p.props.h) {
+    let resizes = 0;
+
+    p.effect(({ w, h }, initial) => {
+        if (!initial) {
             p.resizeCanvas(w, h);
+            ++resizes;
         }
-    };
+    }, ["w", "h"]);
 
     p.draw = () => {
         p.background(255);
         p.textSize(32);
         p.textAlign(p.LEFT, p.TOP);
         p.text("Props", 0, 0);
-        p.text(p.props.value, 0, 50);
+        p.textSize(16);
+        p.text(`Resizes: ${resizes}`, 0, 50);
+        p.text(`Value: ${p.props.value}`, 0, 75);
     };
 };
 
+const SIZES = [250, 300];
+
 const Props = () => {
-    const [width, setWidth] = useState(300);
+    const [widthI, setWidthI] = useState(0);
     const [value, setValue] = useState(0);
 
     useEffect(() => {
         const handle = setInterval(() => {
             setValue(ps => (ps + 1) % 10);
-        }, 1000);
+        }, 250);
 
         return () => clearInterval(handle);
     }, []);
 
     useEffect(() => {
-        if (value % 2 === 0) {
-            setWidth(300);
-        } else {
-            setWidth(250);
-        }
-    }, [value]);
+        const handle = setInterval(() => {
+            setWidthI(ps => (ps + 1) % SIZES.length);
+        }, 1000);
+
+        return () => clearInterval(handle);
+    }, []);
 
     return (
         <P5React
             sketch={sketch}
             props={{
                 value,
-                w: width,
+                w: SIZES[widthI],
                 h: 100,
             }}
             style={{

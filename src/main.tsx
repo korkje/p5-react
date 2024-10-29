@@ -1,12 +1,13 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 
-import Cleanup from "./examples/cleanup";
-import Deps from "./examples/deps";
-import Parent from "./examples/parent";
-import Props from "./examples/props";
-import Simple from "./examples/simple";
-import Effect from "./examples/effect";
+import Cleanup from "./tests/cleanup";
+import Parent from "./tests/parent";
+import Props from "./tests/props";
+import Simple from "./tests/simple";
+import Unstable from "./tests/unstable";
+import Deps from "./tests/deps";
+import Extract from "./tests/extract";
 
 const App: React.FC = () => (
     <div style={{
@@ -19,7 +20,8 @@ const App: React.FC = () => (
         <Cleanup />
         <Props />
         <Deps />
-        <Effect />
+        <Extract />
+        <Unstable />
     </div>
 );
 
