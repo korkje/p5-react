@@ -102,7 +102,6 @@ export const P5React = <T extends Object>({ sketch, props, deps, ...rest}: P5Rea
         updateRef.current?.(PROPS);
     }, [sketch, ...DEPS]);
 
-
     return <div ref={parentRef} {...rest} />;
 };
 
