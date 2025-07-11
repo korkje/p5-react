@@ -28,7 +28,7 @@ export const P5React = <T extends Object>({ sketch, props, deps, ...rest}: P5Rea
     const prevRef = useRef<[SketchProps<T>, unknown[]]>();
 
     const PROPS = props as SketchProps<T>;
-    const DEPS = deps ?? (PROPS ? Object.values(PROPS) : []);
+    const DEPS = deps || (PROPS ? Object.values(PROPS) : []);
 
     useEffect(() => {
         const wrapper = new P5((p: P5 & Extras<T>) => {
@@ -88,7 +88,7 @@ export const P5React = <T extends Object>({ sketch, props, deps, ...rest}: P5Rea
                     run = _old.some((v, i) => v !== _new[i]);
                 }
                 else {
-                    run = deps?.some(dep => prevProps![dep] !== PROPS![dep]) ?? true;
+                    run = deps?.some(dep => prevProps![dep] !== PROPS![dep]) || true;
                 }
             }
             catch (e) { console.error("Dependency check threw", e); }
